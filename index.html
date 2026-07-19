@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Allah Dostlarını Ziyaret</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #E8F5E9; margin: 0; padding: 20px; color: #2E7D32; }
+        h1 { text-align: center; color: #1B5E20; }
+        
+        .container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+        
+        /* Kart Tasarımı */
+        .card { 
+            width: 300px; background: #C8E6C9; border-radius: 15px; padding: 15px; 
+            text-align: center; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .card:hover { transform: scale(1.05); background: #A5D6A7; }
+        
+        .image-placeholder { 
+            width: 100%; height: 200px; background: #81C784; border-radius: 10px; 
+            display: flex; align-items: center; justify-content: center; color: white; margin-bottom: 10px;
+        }
+        
+        /* Detay Bölümü (Basit Gösterim) */
+        .details { margin-top: 30px; padding: 20px; background: #A5D6A7; border-radius: 10px; display: none; }
+    </style>
+</head>
+<body>
+
+    <h1>Allah Dostlarını Ziyaret</h1>
+
+    <div class="container">
+        <!-- Mahmut Efendi Kartı -->
+        <div class="card" onclick="showDetails('Mahmud Efendi Hz.', 'İstanbul - Yavuz Selim', 'İlim ve irşad yolunda ömür sürmüş bir Allah dostu...')">
+            <div class="image-placeholder">Resim Yüklenecek Alan</div>
+            <h3>Mahmud Efendi Hz.</h3>
+        </div>
+        
+        <!-- Buraya yeni kartlar ekleyebilirsin -->
+    </div>
+
+    <div id="detailSection" class="details">
+        <h2 id="name"></h2>
+        <p><strong>Konum:</strong> <span id="location"></span></p>
+        <p><strong>Bilgi:</strong> <span id="info"></span></p>
+        <button onclick="document.getElementById('detailSection').style.display='none'">Kapat</button>
+    </div>
+
+    <script>
+        function showDetails(name, loc, info) {
+            document.getElementById('detailSection').style.display = 'block';
+            document.getElementById('name').innerText = name;
+            document.getElementById('location').innerText = loc;
+            document.getElementById('info').innerText = info;
+        }
+    </script>
+</body>
+</html>
