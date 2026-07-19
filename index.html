@@ -4,512 +4,326 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Allah Dostlarını Ziyaret</title>
+    
+    <!-- Tailwind CSS (Modern ve Şık Tasarım İçin) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Özel Renk Ayarları -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#114232',    /* Koyu Zümrüt Yeşili (Menü) */
+                        secondary: '#87A922',  /* Altın Yeşili (Vurgular) */
+                        surface: '#F7F9F2',    /* Çok Açık Krem/Yeşil (Arka Plan) */
+                        card: '#FFFFFF',       /* Beyaz (Kartlar) */
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Segoe UI', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
     <style>
-        :root {
-            --bg-color: #E8F5E9; /* Açık yeşil arka plan */
-            --sidebar-bg: #C8E6C9; /* Sol menü arka plan */
-            --card-bg: #FFFFFF; /* Sağ alan kart beyazı */
-            --primary: #2E7D32; /* Ana yeşil ton */
-            --primary-hover: #1B5E20; /* Koyu yeşil hover */
-            --text-dark: #1B5E20; /* Koyu yeşil metin */
-            --border-color: #A5D6A7;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            margin: 0;
-            display: flex;
-            height: 100vh;
-            color: var(--text-dark);
-            overflow: hidden;
-        }
-
-        /* Başlık ve Gizli Admin Butonu */
-        .header-title {
-            text-align: center;
-            padding: 15px;
-            margin: 0;
-            background-color: var(--primary);
-            color: white;
-            font-size: 1.5rem;
-            font-weight: bold;
-            cursor: pointer; /* Tıklanabilir efekti */
-            user-select: none;
-        }
-
-        /* Düzen Yapısı */
-        #app-container {
-            display: flex;
-            width: 100%;
-            height: 100%;
-            flex-direction: row;
-        }
-
-        #sidebar {
-            width: 320px;
-            background: var(--sidebar-bg);
-            display: flex;
-            flex-direction: column;
-            border-right: 2px solid var(--border-color);
-            height: 100%;
-        }
-
-        .list-container {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 15px;
-        }
-
-        .region-group {
-            margin-bottom: 20px;
-        }
-
-        .region-title {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: var(--primary-hover);
-            border-bottom: 2px solid var(--primary);
-            padding-bottom: 5px;
-            margin-bottom: 10px;
-        }
-
-        .saint-item {
-            background: #A5D6A7;
-            padding: 12px 15px;
-            margin-bottom: 8px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-weight: 500;
-        }
-
-        .saint-item:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateX(5px);
-        }
-
-        .saint-item.active {
-            background: var(--primary);
-            color: white;
-            border-left: 5px solid #ffeb3b;
-        }
-
-        #main-content {
-            flex-grow: 1;
-            padding: 30px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: var(--bg-color);
-        }
-
-        .detail-card {
-            background: var(--card-bg);
-            padding: 40px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 800px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-            display: none; /* Başlangıçta gizli */
-        }
-
-        .detail-header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .detail-name {
-            font-size: 2.2rem;
-            color: var(--primary-hover);
-            margin: 0 0 10px 0;
-        }
-
-        .detail-img-container {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            margin-bottom: 25px;
-        }
-
-        .detail-img {
-            max-width: 100%;
-            max-height: 400px;
-            object-fit: cover;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            border: 4px solid var(--border-color);
-        }
-
-        .map-btn {
-            display: inline-block;
-            background: #FF9800;
-            color: white;
-            padding: 12px 25px;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
-            margin-bottom: 25px;
-            transition: 0.3s;
-            text-align: center;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        .map-btn:hover {
-            background: #F57C00;
-        }
-
-        .info-section {
-            background: #F1F8E9;
-            padding: 25px;
-            border-radius: 10px;
-            border-left: 5px solid var(--primary);
-            line-height: 1.6;
-            font-size: 1.1rem;
-            white-space: pre-wrap; /* Satır sonlarını korur */
-        }
-
-        .empty-state {
-            text-align: center;
-            margin-top: 100px;
-            color: var(--primary);
-            font-size: 1.5rem;
-            opacity: 0.6;
-        }
-
-        /* Ortak Modal Yapısı */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-box {
-            background: var(--bg-color);
-            padding: 30px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 450px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            position: relative;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         
-        .modal-box.large {
-            max-width: 600px;
-        }
-
-        .modal-title {
-            margin-top: 0;
-            color: var(--primary-hover);
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-family: inherit;
-        }
-
-        .form-group textarea {
-            height: 100px;
-            resize: vertical;
-        }
-
-        .btn-primary, .btn-secondary {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1rem;
-            transition: 0.3s;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            width: 100%;
-        }
-
-        .btn-primary:hover { background: var(--primary-hover); }
-
-        .btn-secondary {
-            background: #9E9E9E;
-            color: white;
-            margin-top: 10px;
-            width: 100%;
-        }
-        .btn-secondary:hover { background: #757575; }
-
-        .close-icon {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #757575;
-        }
-        .close-icon:hover { color: red; }
-
-        /* Dosya Yükleme Önizleme */
-        #image-preview {
-            max-width: 100%;
-            height: 150px;
-            object-fit: contain;
-            margin-top: 10px;
-            display: none;
-            border: 1px dashed var(--primary);
-        }
-
-        /* Özel Uyarı Mesajı (Toast) */
+        body { font-family: 'Inter', sans-serif; overflow: hidden; background-color: #F7F9F2; }
+        
+        /* Özel Kaydırma Çubuğu (Scrollbar) Tasarımı */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Sol menü için özel scrollbar */
+        #sidebar-list::-webkit-scrollbar-thumb { background: #2a614d; }
+        
+        /* Geçiş Efektleri */
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Bildirim Kutusu (Toast) */
         #toast {
-            position: fixed;
-            bottom: -100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--primary-hover);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 50px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            transition: bottom 0.4s ease;
-            z-index: 2000;
-            font-weight: bold;
+            position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%);
+            transition: bottom 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 9999;
         }
         #toast.show { bottom: 30px; }
-        #toast.error { background: #D32F2F; }
-
-        /* Mobil Uyum */
-        @media (max-width: 768px) {
-            #app-container { flex-direction: column; }
-            #sidebar { width: 100%; height: 40%; border-right: none; border-bottom: 2px solid var(--border-color); }
-            #main-content { height: 60%; padding: 15px; }
-            .detail-card { width: 100%; padding: 20px; }
-            .detail-img { max-height: 250px; }
-        }
     </style>
 </head>
-<body>
+<body class="flex h-screen w-full text-slate-800 antialiased">
 
-    <div id="app-container">
-        <!-- Sol Menü -->
-        <div id="sidebar">
-            <!-- Tıklayınca Admin paneli açılacak başlık -->
-            <div class="header-title" onclick="openLoginModal()" title="Yönetici paneli için tıklayın">
-                ALLAH DOSTLARINI ZİYARET
-            </div>
-            
-            <div class="list-container" id="sidebar-list">
-                <!-- Bölgeler ve Kişiler buraya yüklenecek -->
-            </div>
+    <!-- Sol Menü -->
+    <aside class="w-full md:w-80 bg-primary text-white flex flex-col shadow-2xl relative z-10 flex-shrink-0 transition-all duration-300">
+        
+        <!-- Gizli Yönetici Tetikleyici Başlık -->
+        <div onclick="openLoginModal()" class="p-6 cursor-pointer hover:bg-white/5 transition-colors border-b border-white/10 group text-center" title="Yönetici girişi için tıklayın">
+            <h1 class="text-xl font-bold tracking-widest text-secondary group-hover:text-white transition-colors">ALLAH DOSTLARINI</h1>
+            <h2 class="text-sm font-light tracking-[0.2em] text-white/70 mt-1">ZİYARET LİSTESİ</h2>
         </div>
 
-        <!-- Sağ Detay Alanı -->
-        <div id="main-content">
-            <div class="empty-state" id="empty-state">
-                Detayları görmek için sol taraftaki listeden bir isim seçin.
-            </div>
+        <!-- Ziyaret Listesi Container -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-6" id="sidebar-list">
+            <!-- JavaScript ile doldurulacak -->
+            <div class="text-center text-white/50 text-sm mt-10">Yükleniyor...</div>
+        </div>
+    </aside>
 
-            <div class="detail-card" id="detail-panel">
-                <div class="detail-header">
-                    <h2 class="detail-name" id="view-name">Mübarek İsmi</h2>
-                </div>
+    <!-- Sağ Detay Alanı -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden bg-surface relative">
+        
+        <!-- Boş Durum (Seçim Yapılmamışken) -->
+        <div id="empty-state" class="flex-1 flex flex-col items-center justify-center text-center p-8 fade-in">
+            <div class="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+                <svg class="w-12 h-12 text-primary/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            </div>
+            <h3 class="text-2xl font-bold text-primary mb-2">Hoş Geldiniz</h3>
+            <p class="text-slate-500 max-w-md">Detayları görüntülemek için sol taraftaki listeden bir mübarek zatın ismine tıklayınız.</p>
+        </div>
+
+        <!-- Detay Kartı (Seçim Yapıldığında) -->
+        <div id="detail-panel" class="hidden flex-1 overflow-y-auto p-4 md:p-10 fade-in">
+            <div class="max-w-4xl mx-auto bg-card rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
                 
-                <div class="detail-img-container">
-                    <img id="view-image" class="detail-img" src="" alt="Fotoğraf">
+                <!-- Üst Resim ve Başlık Alanı -->
+                <div class="relative h-64 bg-slate-200 flex items-center justify-center overflow-hidden">
+                    <img id="view-image" src="" alt="Fotoğraf" class="absolute inset-0 w-full h-full object-cover hidden">
+                    <div id="view-image-placeholder" class="text-slate-400 flex flex-col items-center">
+                        <svg class="w-16 h-16 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <span>Görsel Bulunmuyor</span>
+                    </div>
+                    <!-- İsim Overlay -->
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-primary/90 to-transparent p-6 pt-20">
+                        <h2 id="view-name" class="text-3xl md:text-4xl font-bold text-white drop-shadow-md">İsim</h2>
+                    </div>
                 </div>
 
-                <a id="view-map" class="map-btn" href="#" target="_blank">📍 Haritada Konumunu Gör</a>
+                <!-- Alt Bilgi ve Harita Alanı -->
+                <div class="p-6 md:p-10 space-y-8">
+                    <!-- Harita Butonu -->
+                    <a id="view-map" href="#" target="_blank" class="hidden inline-flex items-center justify-center w-full md:w-auto px-8 py-4 bg-secondary hover:bg-[#72901c] text-white font-bold rounded-xl shadow-lg shadow-secondary/30 transition-all transform hover:-translate-y-1">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        Haritada Konumunu Gör
+                    </a>
 
-                <div class="info-section" id="view-about">
-                    Hakkında bilgiler buraya gelecek...
+                    <!-- Hakkında Metni -->
+                    <div class="bg-surface p-6 rounded-2xl border-l-4 border-secondary">
+                        <h3 class="text-sm font-bold text-primary tracking-wider uppercase mb-3 border-b border-slate-200 pb-2">Hakkında</h3>
+                        <p id="view-about" class="text-slate-700 leading-relaxed whitespace-pre-wrap font-medium">Bilgi yok.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODALLAR (PENCERELER) -->
+    
+    <!-- Ortak Modal Arka Planı Tasarımı -->
+    <style>
+        .modal-container { display: none; }
+        .modal-container.active { display: flex; animation: fadeInModal 0.2s ease-out forwards; }
+        @keyframes fadeInModal { from { opacity: 0; backdrop-filter: blur(0px); } to { opacity: 1; backdrop-filter: blur(4px); } }
+        .modal-box { transform: scale(0.95); transition: transform 0.2s; }
+        .modal-container.active .modal-box { transform: scale(1); }
+    </style>
+
+    <!-- 1. Yönetici Giriş Modalı -->
+    <div id="login-modal" class="modal-container fixed inset-0 z-50 bg-primary/80 flex items-center justify-center p-4">
+        <div class="modal-box bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden relative">
+            <button onclick="closeModals()" class="absolute top-4 right-4 text-slate-400 hover:text-red-500 transition-colors p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            <div class="bg-primary p-6 text-center">
+                <h2 class="text-2xl font-bold text-white">Yönetici Girişi</h2>
+            </div>
+            <div class="p-8 space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Şifre</label>
+                    <input type="password" id="login-pw" placeholder="••••" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-secondary focus:border-secondary outline-none transition-all text-center text-xl tracking-widest">
+                </div>
+                <button onclick="checkLogin()" class="w-full bg-primary hover:bg-[#0a2e22] text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all transform active:scale-95">GİRİŞ YAP</button>
+                <div class="text-center pt-2 border-t border-slate-100">
+                    <button onclick="showChangePwModal()" class="text-sm text-secondary hover:text-primary font-medium transition-colors">Şifremi Değiştir</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Yönetici Giriş Modalı -->
-    <div id="login-modal" class="modal-overlay">
-        <div class="modal-box">
-            <span class="close-icon" onclick="closeModals()">×</span>
-            <h2 class="modal-title">Yönetici Girişi</h2>
-            <div class="form-group">
-                <label>Şifre:</label>
-                <input type="password" id="login-pw" placeholder="Şifreyi giriniz...">
+    <!-- 2. Şifre Değiştirme Modalı -->
+    <div id="change-pw-modal" class="modal-container fixed inset-0 z-50 bg-primary/80 flex items-center justify-center p-4">
+        <div class="modal-box bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden relative">
+            <button onclick="openLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg></button>
+            <div class="bg-slate-100 p-6 text-center border-b border-slate-200">
+                <h2 class="text-xl font-bold text-primary">Şifre Yenileme</h2>
             </div>
-            <button class="btn-primary" onclick="checkLogin()">Giriş Yap</button>
-            <div style="text-align: center; margin-top: 15px;">
-                <a href="#" onclick="showChangePwModal()" style="color: var(--primary); font-size: 0.9rem;">Şifremi Değiştir</a>
+            <div class="p-8 space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Güvenlik Kodu</label>
+                    <input type="text" id="security-code" placeholder="Örn: İLKİKRA" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-secondary outline-none transition-all">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Yeni Şifre</label>
+                    <input type="password" id="new-pw" placeholder="En az 4 hane" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-secondary outline-none transition-all">
+                </div>
+                <button onclick="changePassword()" class="w-full bg-secondary hover:bg-[#72901c] text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all">ŞİFREYİ GÜNCELLE</button>
             </div>
         </div>
     </div>
 
-    <!-- Şifre Değiştirme Modalı -->
-    <div id="change-pw-modal" class="modal-overlay">
-        <div class="modal-box">
-            <span class="close-icon" onclick="closeModals()">×</span>
-            <h2 class="modal-title">Şifre Değiştir</h2>
-            <div class="form-group">
-                <label>Güvenlik Kodu:</label>
-                <input type="text" id="security-code" placeholder="Güvenlik kodunu giriniz...">
-            </div>
-            <div class="form-group">
-                <label>Yeni Şifre:</label>
-                <input type="password" id="new-pw" placeholder="Yeni şifrenizi giriniz...">
-            </div>
-            <button class="btn-primary" onclick="changePassword()">Şifreyi Güncelle</button>
-            <button class="btn-secondary" onclick="openLoginModal()">Geri Dön</button>
-        </div>
-    </div>
-
-    <!-- Yönetici Paneli (Ekleme Formu) Modalı -->
-    <div id="admin-panel-modal" class="modal-overlay">
-        <div class="modal-box large">
-            <span class="close-icon" onclick="closeModals()">×</span>
-            <h2 class="modal-title">Yeni Kişi Ekle</h2>
+    <!-- 3. Yeni Kişi Ekleme Modalı (YENİLENMİŞ VE TAŞMA SORUNU ÇÖZÜLMÜŞ YAPI) -->
+    <div id="admin-panel-modal" class="modal-container fixed inset-0 z-50 bg-primary/80 flex items-center justify-center p-2 sm:p-4">
+        <!-- Pencere dış kapsayıcısı: Ekranın %95'ini geçemez, taştığında içini kaydırır -->
+        <div class="modal-box bg-white rounded-2xl w-full max-w-2xl max-h-[95vh] flex flex-col shadow-2xl relative">
             
-            <div class="form-group">
-                <label>Bölge Adı (Örn: İstanbul):</label>
-                <input type="text" id="input-region" placeholder="Listede görünecek bölge grubu...">
+            <!-- Sabit Üst Başlık (Kaymaz) -->
+            <div class="p-5 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl z-10 shrink-0">
+                <h2 class="text-2xl font-bold text-primary flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Yeni Kişi Ekle
+                </h2>
+                <button onclick="closeModals()" class="text-slate-400 hover:bg-slate-100 p-2 rounded-full transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
             </div>
             
-            <div class="form-group">
-                <label>Mübareğin İsmi:</label>
-                <input type="text" id="input-name" placeholder="İsim...">
+            <!-- Kaydırılabilir Form Alanı (İçerik buraya sığar, uzarsa burası kayar) -->
+            <div class="p-5 sm:p-6 overflow-y-auto space-y-5 bg-slate-50/50">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Bölge Adı</label>
+                        <input type="text" id="input-region" placeholder="Örn: İstanbul / Fatih" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-secondary focus:border-secondary outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Mübareğin İsmi <span class="text-red-500">*</span></label>
+                        <input type="text" id="input-name" placeholder="İsim soyisim / lakap..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-secondary focus:border-secondary outline-none transition-all">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Harita Linki</label>
+                    <input type="text" id="input-map" placeholder="https://maps.app.goo.gl/..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-secondary outline-none text-sm transition-all text-slate-600 font-mono">
+                    <p class="text-xs text-slate-400 mt-1 ml-1">Google Maps'ten 'Paylaş' diyerek aldığınız linki yapıştırın.</p>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200">
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Resim Yükle</label>
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                        <label class="cursor-pointer bg-primary/10 hover:bg-primary/20 text-primary font-medium py-2 px-4 rounded-lg transition-colors border border-primary/20 inline-flex items-center text-sm">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                            Bilgisayardan Seç
+                            <input type="file" id="input-image" accept="image/*" onchange="handleImageUpload(event)" class="hidden">
+                        </label>
+                        <!-- Resim Yüklenince Burası Büyümeyecek, Sabit Yükseklikte Kalacak -->
+                        <div class="relative rounded-lg overflow-hidden border border-slate-200 bg-slate-50 w-full sm:w-32 h-24 flex-shrink-0 flex items-center justify-center">
+                            <img id="image-preview" src="" class="hidden w-full h-full object-cover">
+                            <span id="image-preview-text" class="text-xs text-slate-400 text-center px-2">Önizleme</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Hakkında Bilgiler</label>
+                    <textarea id="input-about" placeholder="Tarihi, özellikleri, bilinmesi gerekenler..." class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-secondary outline-none transition-all h-32 resize-y"></textarea>
+                </div>
+            </div>
+            
+            <!-- Sabit Alt Bilgi / Kaydet Butonu (Asla altta kalmaz) -->
+            <div class="p-5 sm:p-6 border-t border-slate-100 bg-white rounded-b-2xl z-10 shrink-0">
+                <button onclick="saveData()" class="w-full bg-primary hover:bg-[#0a2e22] text-white text-lg font-bold py-3.5 px-4 rounded-xl shadow-lg transition-all flex justify-center items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                    BİLGİLERİ KAYDET
+                </button>
             </div>
 
-            <div class="form-group">
-                <label>Harita Linki (Google Maps Embed/Paylaşım Linki):</label>
-                <input type="text" id="input-map" placeholder="https://maps.app.goo.gl/...">
-            </div>
-
-            <div class="form-group">
-                <label>Resim Yükle:</label>
-                <input type="file" id="input-image" accept="image/*" onchange="handleImageUpload(event)">
-                <img id="image-preview" src="">
-            </div>
-
-            <div class="form-group">
-                <label>Kişisel / Tarihi Bilgiler:</label>
-                <textarea id="input-about" placeholder="Mübarek hakkında bilinmesi gerekenler..."></textarea>
-            </div>
-
-            <button class="btn-primary" onclick="saveData()">KAYDET</button>
         </div>
     </div>
 
-    <!-- Özel Uyarı Mesaj Kutusu -->
-    <div id="toast">Bildirim Mesajı</div>
+    <!-- Bildirim Kutusu (Toast) -->
+    <div id="toast" class="bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl font-medium flex items-center gap-3">
+        <span id="toast-icon">ℹ️</span>
+        <span id="toast-msg">Bildirim mesajı</span>
+    </div>
 
     <script type="module">
-        // Firebase Modüllerini İçe Aktarma
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, setDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Global Değişkenler
-        window.saintsList = []; // Tüm veriyi tutacak liste
-        window.currentPassword = "2468"; // Varsayılan Şifre
-        const SECURITY_CODE = "İLKİKRA"; // Güvenlik Kodu
-        window.imageBase64 = null; // Yüklenen resmi tutmak için
+        // Değişkenler
+        window.saintsList = [];
+        window.currentPassword = "2468";
+        const SECURITY_CODE = "İLKİKRA";
+        window.imageBase64 = null;
         
         let app, db, auth;
         let isLocalMode = false;
         let appId = "allah-dostlari-default";
-        let userId = null;
 
-        // Firebase Ayarları Çekme (Eğer Sistemdeysek)
-        const firebaseConfigStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        if (typeof __app_id !== 'undefined') appId = __app_id;
-
-        window.onload = async () => {
-            if (!firebaseConfigStr) {
-                // Masaüstü (Yerel) Modda Çalışma Durumu
-                isLocalMode = true;
-                showToast("Masaüstü Modu: Veriler sadece bu oturum için geçerlidir.");
-                renderSidebar();
-            } else {
-                // Firebase (Bulut) Modunda Çalışma Durumu
-                try {
-                    const firebaseConfig = JSON.parse(firebaseConfigStr);
-                    app = initializeApp(firebaseConfig);
-                    db = getFirestore(app);
-                    auth = getAuth(app);
-                    
-                    if (initialAuthToken) {
-                        await signInWithCustomToken(auth, initialAuthToken);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-                    
-                    userId = auth.currentUser.uid;
-                    loadFromFirebase();
-                    loadPasswordFromFirebase();
-
-                } catch (error) {
-                    console.error("Firebase Başlatma Hatası:", error);
-                    isLocalMode = true;
-                    showToast("Bağlantı sağlanamadı, Çevrimdışı moda geçildi.", true);
-                }
-            }
-        };
-
-        window.showToast = (msg, isError = false) => {
+        // Toast Bildirim Fonksiyonu
+        window.showToast = (msg, type = 'success') => {
             const toast = document.getElementById('toast');
-            toast.innerText = msg;
-            toast.className = isError ? 'error show' : 'show';
-            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+            document.getElementById('toast-msg').innerText = msg;
+            
+            if(type === 'error') {
+                toast.className = 'bg-red-600 text-white px-6 py-3 rounded-full shadow-2xl font-medium flex items-center gap-3 show';
+                document.getElementById('toast-icon').innerText = '⚠️';
+            } else if (type === 'warning') {
+                toast.className = 'bg-amber-500 text-white px-6 py-3 rounded-full shadow-2xl font-medium flex items-center gap-3 show';
+                document.getElementById('toast-icon').innerText = '🔔';
+            } else {
+                toast.className = 'bg-secondary text-white px-6 py-3 rounded-full shadow-2xl font-medium flex items-center gap-3 show';
+                document.getElementById('toast-icon').innerText = '✅';
+            }
+            
+            setTimeout(() => { toast.classList.remove('show'); }, 3500);
         };
 
+        // Modal Yönetimi
         window.openLoginModal = () => { 
             closeModals(); 
-            document.getElementById('login-modal').style.display = 'flex'; 
+            document.getElementById('login-modal').classList.add('active'); 
             document.getElementById('login-pw').value = '';
+            document.getElementById('login-pw').focus();
         };
         
         window.showChangePwModal = () => {
             closeModals();
-            document.getElementById('change-pw-modal').style.display = 'flex';
+            document.getElementById('change-pw-modal').classList.add('active');
             document.getElementById('security-code').value = '';
             document.getElementById('new-pw').value = '';
         };
 
         window.closeModals = () => {
-            const modals = document.querySelectorAll('.modal-overlay');
-            modals.forEach(m => m.style.display = 'none');
+            document.querySelectorAll('.modal-container').forEach(m => m.classList.remove('active'));
         };
 
+        // Formu Temizle
+        window.resetAdminForm = () => {
+            document.getElementById('input-region').value = '';
+            document.getElementById('input-name').value = '';
+            document.getElementById('input-map').value = '';
+            document.getElementById('input-about').value = '';
+            document.getElementById('input-image').value = '';
+            
+            const previewImg = document.getElementById('image-preview');
+            const previewText = document.getElementById('image-preview-text');
+            previewImg.src = '';
+            previewImg.classList.add('hidden');
+            previewText.classList.remove('hidden');
+            window.imageBase64 = null;
+        };
+
+        // Şifre Kontrolleri
         window.checkLogin = () => {
             const pw = document.getElementById('login-pw').value;
             if (pw === window.currentPassword) {
                 closeModals();
-                document.getElementById('admin-panel-modal').style.display = 'flex';
+                document.getElementById('admin-panel-modal').classList.add('active');
                 resetAdminForm();
-                showToast("Yönetici paneline giriş yapıldı.");
+                showToast("Yönetici girişi başarılı.");
             } else {
-                showToast("Hatalı Şifre!", true);
+                showToast("Hatalı Şifre!", 'error');
             }
         };
 
@@ -517,217 +331,249 @@
             const code = document.getElementById('security-code').value;
             const newPw = document.getElementById('new-pw').value;
 
-            if (code !== SECURITY_CODE) {
-                showToast("Güvenlik kodu hatalı!", true);
-                return;
-            }
-            if (newPw.length < 4) {
-                showToast("Şifre en az 4 haneli olmalıdır!", true);
-                return;
-            }
+            if (code !== SECURITY_CODE) { showToast("Güvenlik kodu hatalı!", 'error'); return; }
+            if (newPw.length < 4) { showToast("Şifre en az 4 haneli olmalıdır!", 'error'); return; }
 
             window.currentPassword = newPw;
 
             if (!isLocalMode && db) {
-                // Şifreyi buluta kaydet (ayarlar belgesi içine)
                 try {
                     const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'admin');
                     await setDoc(settingsRef, { password: newPw });
-                    showToast("Şifre kalıcı olarak değiştirildi!");
-                } catch (e) {
-                    console.error("Şifre kayıt hatası:", e);
-                    showToast("Sadece bu oturum için değiştirildi.");
-                }
+                    showToast("Şifre kalıcı olarak güncellendi!");
+                } catch (e) { showToast("Şifre sadece bu oturum için değişti.", 'warning'); }
             } else {
-                showToast("Şifre geçici olarak değiştirildi!");
+                showToast("Masaüstü: Şifre geçici olarak değişti!");
             }
             openLoginModal();
         };
 
-        async function loadPasswordFromFirebase() {
-            try {
-                const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'admin');
-                const docSnap = await getDoc(settingsRef);
-                if (docSnap.exists()) {
-                    window.currentPassword = docSnap.data().password;
-                }
-            } catch (e) { console.log("Şifre okunamadı, varsayılan kullanılacak."); }
-        }
-
+        // Resim Yükleme ve Sıkıştırma (Taşmayı önlemek için ayarlı)
         window.handleImageUpload = (event) => {
             const file = event.target.files[0];
             if (!file) return;
 
-            // Fotoğrafı boyutunu küçültmek ve Base64 yapmak için Canvas kullanımı
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800;
-                    const MAX_HEIGHT = 800;
-                    let width = img.width;
-                    let height = img.height;
+                    const MAX_WIDTH = 600; // Çözünürlüğü optimize ettik
+                    const MAX_HEIGHT = 600;
+                    let width = img.width; let height = img.height;
 
-                    if (width > height && width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width; width = MAX_WIDTH;
-                    } else if (height > MAX_HEIGHT) {
-                        width *= MAX_HEIGHT / height; height = MAX_HEIGHT;
-                    }
+                    if (width > height && width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } 
+                    else if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
 
                     canvas.width = width; canvas.height = height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    // %70 kalite ile JPEG formatında sıkıştır
-                    window.imageBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                    // Jpeg olarak sıkıştır
+                    window.imageBase64 = canvas.toDataURL('image/jpeg', 0.8);
                     
-                    const preview = document.getElementById('image-preview');
-                    preview.src = window.imageBase64;
-                    preview.style.display = 'block';
+                    const previewImg = document.getElementById('image-preview');
+                    const previewText = document.getElementById('image-preview-text');
+                    
+                    previewImg.src = window.imageBase64;
+                    previewImg.classList.remove('hidden');
+                    previewText.classList.add('hidden');
                 }
                 img.src = e.target.result;
             }
             reader.readAsDataURL(file);
         };
 
-        window.resetAdminForm = () => {
-            document.getElementById('input-region').value = '';
-            document.getElementById('input-name').value = '';
-            document.getElementById('input-map').value = '';
-            document.getElementById('input-about').value = '';
-            document.getElementById('input-image').value = '';
-            document.getElementById('image-preview').style.display = 'none';
-            window.imageBase64 = null;
-        };
-
+        // Veri Kaydetme
         window.saveData = async () => {
-            const region = document.getElementById('input-region').value.trim();
+            const region = document.getElementById('input-region').value.trim() || "Diğer Bölgeler";
             const name = document.getElementById('input-name').value.trim();
             const mapLink = document.getElementById('input-map').value.trim();
             const about = document.getElementById('input-about').value.trim();
 
-            if (!region || !name) {
-                showToast("Bölge ve İsim zorunludur!", true);
+            if (!name) {
+                showToast("Lütfen mübareğin ismini giriniz!", 'error');
+                document.getElementById('input-name').focus();
                 return;
             }
 
             const newPerson = {
-                region: region,
-                name: name,
-                mapLink: mapLink,
-                about: about,
-                image: window.imageBase64,
-                timestamp: Date.now()
+                region: region, name: name, mapLink: mapLink, about: about,
+                image: window.imageBase64, timestamp: Date.now()
             };
 
             if (isLocalMode) {
-                // Masaüstü çalışması
                 window.saintsList.push({ id: Date.now().toString(), ...newPerson });
-                showToast("Başarıyla eklendi (Geçici)!");
+                showToast("Başarıyla eklendi (Geçici Masaüstü Kaydı)");
                 closeModals();
                 renderSidebar();
             } else {
-                // Firebase (Bulut) Kaydı
                 try {
                     const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'saintsList');
                     await addDoc(colRef, newPerson);
-                    showToast("Buluta başarıyla kaydedildi!");
+                    showToast("Veritabanına kaydedildi!");
                     closeModals();
                 } catch (e) {
-                    console.error("Kayıt Hatası:", e);
-                    showToast("Kayıt yapılamadı!", true);
+                    console.error(e);
+                    showToast("Kayıt hatası!", 'error');
                 }
             }
         };
 
-        function loadFromFirebase() {
-            const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'saintsList');
-            
-            // Veritabanını anlık dinleme
-            onSnapshot(colRef, (snapshot) => {
-                window.saintsList = [];
-                snapshot.forEach(doc => {
-                    window.saintsList.push({ id: doc.id, ...doc.data() });
-                });
-                renderSidebar();
-            }, (error) => {
-                console.error("Veri Çekme Hatası:", error);
-                showToast("Veriler yüklenemedi", true);
-            });
-        }
-
+        // Sol Menüyü Çizme (Şık Liste Tasarımı)
         function renderSidebar() {
             const listDiv = document.getElementById('sidebar-list');
             listDiv.innerHTML = '';
 
             if (window.saintsList.length === 0) {
-                listDiv.innerHTML = '<div style="padding:10px; color:#555;">Henüz kayıt bulunmamaktadır. Yönetici panelinden ekleyin.</div>';
+                listDiv.innerHTML = `
+                    <div class="text-center p-6 border border-white/10 rounded-xl bg-white/5">
+                        <p class="text-white/60 text-sm">Henüz kayıt yok.</p>
+                        <p class="text-white/40 text-xs mt-2">Başlığa tıklayarak ekleme yapabilirsiniz.</p>
+                    </div>`;
                 return;
             }
 
             // Verileri Bölgelere Göre Grupla
             const groups = {};
             window.saintsList.forEach(person => {
-                const reg = person.region || "Diğer";
+                const reg = person.region || "Diğer Bölgeler";
                 if (!groups[reg]) groups[reg] = [];
                 groups[reg].push(person);
             });
 
             // Grupları Ekrana Bas
             for (const [regionName, people] of Object.entries(groups)) {
-                // Bölge Başlığı
-                const regionDiv = document.createElement('div');
-                regionDiv.className = 'region-group';
                 
-                const title = document.createElement('div');
-                title.className = 'region-title';
-                title.innerText = regionName;
+                const regionDiv = document.createElement('div');
+                regionDiv.className = 'mb-6 fade-in';
+                
+                // Bölge Başlığı
+                const title = document.createElement('h3');
+                title.className = 'text-xs font-bold text-secondary uppercase tracking-wider mb-3 px-2 flex items-center';
+                title.innerHTML = `<span class="w-2 h-2 rounded-full bg-secondary mr-2"></span> ${regionName}`;
                 regionDiv.appendChild(title);
 
                 // O bölgedeki isimler
+                const ul = document.createElement('ul');
+                ul.className = 'space-y-1';
+
                 people.forEach(person => {
-                    const item = document.createElement('div');
-                    item.className = 'saint-item';
-                    item.innerText = person.name;
-                    item.onclick = () => showDetails(person, item);
-                    regionDiv.appendChild(item);
+                    const li = document.createElement('li');
+                    li.className = 'saint-item px-4 py-3 rounded-lg cursor-pointer transition-all duration-200 text-white/80 hover:bg-white/10 hover:text-white font-medium text-sm flex items-center border border-transparent';
+                    li.innerText = person.name;
+                    
+                    li.onclick = () => {
+                        // Aktiflik Sınıfları
+                        document.querySelectorAll('.saint-item').forEach(el => {
+                            el.classList.remove('bg-secondary', 'text-white', 'shadow-md', 'border-secondary/50');
+                            el.classList.add('hover:bg-white/10', 'text-white/80');
+                        });
+                        li.classList.remove('hover:bg-white/10', 'text-white/80');
+                        li.classList.add('bg-secondary', 'text-white', 'shadow-md', 'border-secondary/50');
+                        
+                        showDetails(person);
+                    };
+                    ul.appendChild(li);
                 });
 
+                regionDiv.appendChild(ul);
                 listDiv.appendChild(regionDiv);
             }
         }
 
-        // Seçili Kişiyi Sağ Tarafta Göster
-        window.showDetails = (person, element) => {
-            // Aktif efekti
-            document.querySelectorAll('.saint-item').forEach(el => el.classList.remove('active'));
-            if(element) element.classList.add('active');
+        // Sağ Tarafta Detayları Göster
+        window.showDetails = (person) => {
+            document.getElementById('empty-state').classList.add('hidden');
+            const panel = document.getElementById('detail-panel');
+            panel.classList.remove('hidden');
+            
+            // Animasyonu tetiklemek için küçük bir hile
+            panel.classList.remove('fade-in');
+            void panel.offsetWidth; 
+            panel.classList.add('fade-in');
 
-            // Paneli Göster
-            document.getElementById('empty-state').style.display = 'none';
-            document.getElementById('detail-panel').style.display = 'block';
-
-            // Verileri Yerleştir
             document.getElementById('view-name').innerText = person.name;
             
             const imgEl = document.getElementById('view-image');
+            const placeholderEl = document.getElementById('view-image-placeholder');
+            
             if (person.image) {
                 imgEl.src = person.image;
-                imgEl.style.display = 'block';
+                imgEl.classList.remove('hidden');
+                placeholderEl.classList.add('hidden');
             } else {
-                imgEl.style.display = 'none';
+                imgEl.classList.add('hidden');
+                placeholderEl.classList.remove('hidden');
             }
 
             const mapBtn = document.getElementById('view-map');
             if (person.mapLink) {
                 mapBtn.href = person.mapLink;
-                mapBtn.style.display = 'inline-block';
+                mapBtn.classList.remove('hidden');
+                mapBtn.classList.add('inline-flex');
             } else {
-                mapBtn.style.display = 'none';
+                mapBtn.classList.add('hidden');
+                mapBtn.classList.remove('inline-flex');
             }
 
-            document.getElementById('view-about').innerText = person.about || "Bu kişi hakkında henüz bilgi girilmemiş.";
+            document.getElementById('view-about').innerText = person.about || "Bu mübarek zat hakkında henüz detaylı bilgi girilmemiştir.";
+            
+            // Mobilde tıklandığında ekranı sağa (aşağı) kaydır
+            if(window.innerWidth < 768) {
+                panel.scrollIntoView({ behavior: 'smooth' });
+            }
+        };
+
+        // Firebase Başlatma
+        window.onload = async () => {
+            const firebaseConfigStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
+            
+            if (!firebaseConfigStr) {
+                isLocalMode = true;
+                showToast("Masaüstü Modu (Kayıtlar sadece bu ekranda kalır)", 'warning');
+                renderSidebar();
+            } else {
+                try {
+                    const firebaseConfig = JSON.parse(firebaseConfigStr);
+                    app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+                    
+                    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+                    if (typeof __app_id !== 'undefined') appId = __app_id;
+
+                    if (initialAuthToken) await signInWithCustomToken(auth, initialAuthToken);
+                    else await signInAnonymously(auth);
+
+                    // Şifreyi Çek
+                    const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'admin');
+                    getDoc(settingsRef).then(snap => { if(snap.exists()) window.currentPassword = snap.data().password; });
+
+                    // Verileri Dinle
+                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'saintsList');
+                    onSnapshot(colRef, (snapshot) => {
+                        window.saintsList = [];
+                        snapshot.forEach(doc => { window.saintsList.push({ id: doc.id, ...doc.data() }); });
+                        
+                        // Tarihe göre sırala
+                        window.saintsList.sort((a,b) => (a.timestamp || 0) - (b.timestamp || 0));
+                        
+                        renderSidebar();
+                    });
+
+                } catch (error) {
+                    console.error("Firebase Hatası:", error);
+                    isLocalMode = true;
+                    showToast("Bağlantı hatası, Çevrimdışı moddasınız.", 'error');
+                    renderSidebar();
+                }
+            }
+            
+            // Enter tuşu ile giriş yapma desteği
+            document.getElementById('login-pw').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') checkLogin();
+            });
         };
     </script>
 </body>
