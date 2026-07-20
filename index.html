@@ -6,7 +6,7 @@
     <title>Allah Dostları Ziyaret Listesi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #ecfdf5; }
         
         /* Kaydırma Çubuğu Tasarımı */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -14,183 +14,184 @@
         ::-webkit-scrollbar-thumb { background: #10b981; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #059669; }
 
-        /* Modal Animasyonu */
-        .modal-enter { animation: fadeIn 0.2s ease-out forwards; }
+        /* Modal ve Fade Animasyonları */
+        .modal-enter { animation: fadeIn 0.3s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; backdrop-filter: blur(0px); } to { opacity: 1; backdrop-filter: blur(4px); } }
-
-        /* Kart Seçim Efekti */
-        .card-active { border-left: 6px solid #10b981; background: #064e3b !important; }
         
         .hide { display: none !important; }
     </style>
 </head>
-<body class="bg-emerald-50 flex h-screen overflow-hidden text-slate-800">
+<body class="text-slate-800 flex flex-col min-h-screen">
 
-    <aside class="w-full md:w-96 bg-emerald-900 text-white flex flex-col shadow-2xl z-20 shrink-0">
-        <!-- Başlık ve Yönetici Girişi -->
-        <div class="p-6 border-b border-emerald-700 text-center cursor-pointer hover:bg-emerald-800 transition-colors group" onclick="openLogin()">
-            <h1 class="text-xl font-bold tracking-widest text-emerald-300 group-hover:text-white transition-colors">
-                ALLAH DOSTLARINI
-            </h1>
-            <h2 class="text-sm font-light tracking-[0.2em] text-emerald-100/70 mt-1">ZİYARET LİSTESİ</h2>
-            <div class="mt-2 text-xs text-emerald-500/50 group-hover:text-emerald-400">
-                <span id="admin-status-text">Yönetici girişi için tıklayın</span>
+    <!-- Üst Başlık (Header) -->
+    <header class="bg-emerald-900 text-white shadow-xl sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="text-center sm:text-left cursor-pointer group" onclick="openLogin()">
+                <h1 class="text-2xl font-bold tracking-widest text-emerald-300 group-hover:text-white transition-colors">
+                    ALLAH DOSTLARINI
+                </h1>
+                <h2 class="text-sm font-light tracking-[0.2em] text-emerald-100/70 mt-1">ZİYARET LİSTESİ</h2>
+                <div class="mt-1 text-xs text-emerald-500/50 group-hover:text-emerald-400">
+                    <span id="admin-status-text">Yönetici girişi için tıklayın</span>
+                </div>
+            </div>
+            
+            <!-- Yönetici Butonları (Sadece girişte görünür) -->
+            <div id="admin-tools" class="hidden flex gap-2 w-full sm:w-auto">
+                <button onclick="createNew()" class="flex-1 sm:flex-none bg-emerald-500 hover:bg-emerald-400 text-white font-bold py-2 px-6 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    YENİ KİŞİ EKLE
+                </button>
+                <button onclick="logout()" class="bg-red-500 hover:bg-red-400 text-white p-2 rounded-xl shadow-lg transition-all" title="Çıkış Yap">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                </button>
             </div>
         </div>
+    </header>
 
-        <!-- Yönetici Araçları -->
-        <div id="admin-tools" class="hidden p-4 border-b border-emerald-700 bg-emerald-950/50">
-            <button onclick="createNew()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                YENİ KİŞİ EKLE
-            </button>
-        </div>
-
+    <!-- ANA EKRAN (Kartvizit Listesi) -->
+    <main id="list-mode" class="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        
         <!-- Yükleniyor Göstergesi -->
-        <div id="loading-indicator" class="p-4 text-center text-emerald-400 hidden">
-            <svg class="animate-spin h-6 w-6 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <div id="loading-indicator" class="p-8 text-center text-emerald-600 hidden">
+            <svg class="animate-spin h-10 w-10 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            Buluttan veriler çekiliyor...
+            <p class="font-bold">Bilgiler Yükleniyor...</p>
         </div>
 
-        <!-- Kişi Listesi -->
-        <div id="list-container" class="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
-            <!-- Kartlar buraya JavaScript ile eklenecek -->
-        </div>
-    </aside>
-
-    <main class="flex-1 relative overflow-y-auto h-screen bg-emerald-50/50">
-        
-        <!-- Boş Durum Ekranı -->
-        <div id="empty-state" class="absolute inset-0 flex flex-col items-center justify-center text-emerald-800/40">
-            <svg class="w-32 h-32 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-            <h2 class="text-2xl font-light">Lütfen soldan bir kişi seçin</h2>
+        <!-- Boş Durum -->
+        <div id="empty-list-msg" class="hidden text-center py-20 text-emerald-800/40">
+            <svg class="w-24 h-24 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <h2 class="text-2xl font-light">Henüz kimse eklenmemiş.</h2>
         </div>
 
-        <!-- Görüntüleme Ekranı (Normal Kullanıcılar İçin) -->
-        <div id="view-mode" class="hidden max-w-4xl mx-auto p-8 pb-24">
-            <div id="edit-btn-container" class="hidden flex justify-end mb-4">
-                <button onclick="editCurrent()" class="bg-amber-500 hover:bg-amber-400 text-white px-6 py-2 rounded-lg font-bold shadow-md transition-all flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                    Düzenle
-                </button>
-            </div>
-
-            <div id="view-album" class="flex gap-4 overflow-x-auto pb-4 snap-x mb-8"></div>
-
-            <div class="bg-white rounded-3xl shadow-xl p-8 border border-emerald-100">
-                <h1 id="view-name" class="text-4xl font-bold text-emerald-900 mb-2">İsim</h1>
-                <div class="flex gap-4 text-emerald-600 font-medium mb-6 pb-6 border-b border-emerald-50">
-                    <span id="view-birth">Doğum: -</span>
-                    <span>|</span>
-                    <span id="view-death">Vefat: -</span>
-                </div>
-                
-                <h3 class="text-lg font-bold text-emerald-800 mb-2">Hakkında</h3>
-                <p id="view-about" class="text-slate-600 leading-relaxed whitespace-pre-wrap mb-8">Bilgi yok...</p>
-
-                <h3 class="text-lg font-bold text-emerald-800 mb-2">Harita / Konum</h3>
-                <a id="view-map" href="#" target="_blank" class="inline-flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-6 py-3 rounded-xl font-medium transition-colors border border-emerald-200">
-                    📍 Haritada Görüntüle
-                </a>
-            </div>
-        </div>
-
-        <!-- Düzenleme/Ekleme Ekranı (Yöneticiler İçin) -->
-        <div id="edit-mode" class="hidden max-w-4xl mx-auto p-4 md:p-8 pb-32">
-            <div class="bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-2 border-emerald-200">
-                <div class="flex justify-between items-center mb-8 border-b pb-4">
-                    <h2 class="text-2xl font-bold text-emerald-800" id="form-title">Yeni Kişi Ekle</h2>
-                    <button onclick="cancelEdit()" class="text-slate-400 hover:text-red-500 font-medium">İptal ✖</button>
-                </div>
-
-                <div class="space-y-6">
-                    <div>
-                        <label class="block text-sm font-bold text-emerald-800 mb-2">📍 Harita Linki (Google Maps)</label>
-                        <input type="text" id="edit-map" placeholder="Harita linkini buraya yapıştırın..." class="w-full bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                    </div>
-
-                    <div class="bg-emerald-50 p-4 md:p-6 rounded-xl border border-emerald-100">
-                        <label class="block text-sm font-bold text-emerald-800 mb-2">📸 Resim Albümü</label>
-                        <div class="flex flex-wrap gap-4 mb-4" id="edit-album-preview"></div>
-                        <div class="flex gap-2">
-                            <input type="file" id="image-upload" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
-                            <button onclick="document.getElementById('image-upload').click()" class="bg-white border-2 border-dashed border-emerald-400 text-emerald-600 hover:bg-emerald-100 px-6 py-3 rounded-xl font-medium transition-colors w-full md:w-auto">
-                                + Resim Seç / Çek
-                            </button>
-                        </div>
-                        <p class="text-xs text-emerald-600/70 mt-2">* Resimler otomatik sıkıştırılarak buluta kaydedilir.</p>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-bold text-emerald-800 mb-2">Mübareğin İsmi</label>
-                        <input type="text" id="edit-name" placeholder="Örn: Mahmud Efendi Hz." class="w-full bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-bold text-emerald-800 mb-2">Doğum Yılı / Tarihi</label>
-                            <input type="text" id="edit-birth" placeholder="Örn: 1929" class="w-full bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-emerald-800 mb-2">Vefat Yılı / Tarihi</label>
-                            <input type="text" id="edit-death" placeholder="Örn: 2022" class="w-full bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-bold text-emerald-800 mb-2">Hakkında / Kişisel Bilgiler</label>
-                        <textarea id="edit-about" rows="6" placeholder="Detaylı bilgileri buraya yazın..." class="w-full bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
-                    </div>
-
-                    <button id="save-btn" onclick="saveData()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xl py-6 rounded-2xl shadow-[0_10px_20px_rgba(16,185,129,0.3)] transition-all flex items-center justify-center gap-2">
-                        💾 BİLGİLERİ KAYDET
-                    </button>
-                </div>
-            </div>
+        <!-- Kart Grid'i -->
+        <div id="cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Kartlar JS ile buraya gelecek -->
         </div>
     </main>
 
+    <!-- DÜZENLEME/EKLEME EKRANI (Yöneticiler İçin - Geniş Çalışma Masası) -->
+    <div id="edit-mode" class="hidden flex-1 w-full max-w-4xl mx-auto p-4 sm:p-8 pb-32">
+        <div class="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 border-2 border-emerald-200">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 border-b pb-4 gap-4">
+                <h2 class="text-2xl font-bold text-emerald-800" id="form-title">Yeni Kişi Ekle</h2>
+                <button onclick="showPanel('list-mode')" class="text-slate-500 hover:text-red-500 font-bold bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-lg transition-colors">
+                    İptal Et / Geri Dön ✖
+                </button>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Harita Linki -->
+                <div>
+                    <label class="block text-sm font-bold text-emerald-800 mb-2">📍 Harita Linki (Google Maps)</label>
+                    <input type="text" id="edit-map" placeholder="Harita linkini buraya yapıştırın..." class="w-full bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+
+                <!-- Resim Albümü -->
+                <div class="bg-emerald-50 p-4 sm:p-6 rounded-xl border border-emerald-100">
+                    <label class="block text-sm font-bold text-emerald-800 mb-2">📸 Resim Albümü (Sınırsız)</label>
+                    <div class="flex flex-wrap gap-4 mb-4" id="edit-album-preview"></div>
+                    <div class="flex gap-2">
+                        <input type="file" id="image-upload" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                        <button onclick="document.getElementById('image-upload').click()" class="bg-white border-2 border-dashed border-emerald-400 text-emerald-600 hover:bg-emerald-100 px-6 py-3 rounded-xl font-bold transition-colors w-full sm:w-auto shadow-sm">
+                            + Resim Ekle (Cihazdan Seç)
+                        </button>
+                    </div>
+                    <p class="text-xs text-emerald-600/70 mt-2">* Resimler otomatik sıkıştırılarak buluta kaydedilir.</p>
+                </div>
+
+                <!-- İsim -->
+                <div>
+                    <label class="block text-sm font-bold text-emerald-800 mb-2">Mübareğin İsmi / Soyismi</label>
+                    <input type="text" id="edit-name" placeholder="Örn: Mahmud Efendi Hz." class="w-full bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner">
+                </div>
+
+                <!-- Tarihler -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-emerald-800 mb-2">Doğum Yılı / Tarihi</label>
+                        <input type="text" id="edit-birth" placeholder="Örn: 1929" class="w-full bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-emerald-800 mb-2">Vefat Yılı / Tarihi</label>
+                        <input type="text" id="edit-death" placeholder="Örn: 2022" class="w-full bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                </div>
+
+                <!-- Hakkında -->
+                <div>
+                    <label class="block text-sm font-bold text-emerald-800 mb-2">Hakkında / Kişisel Bilgiler</label>
+                    <textarea id="edit-about" rows="8" placeholder="Detaylı bilgileri buraya yazın..." class="w-full bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner"></textarea>
+                </div>
+
+                <!-- Kaydet Butonu -->
+                <button id="save-btn" onclick="saveData()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xl py-6 rounded-2xl shadow-[0_10px_20px_rgba(16,185,129,0.3)] transition-all flex items-center justify-center gap-3 border-2 border-emerald-400 mt-8">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                    BİLGİLERİ KAYDET
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BİLGİ PENCERESİ (Ziyaretçiler "Bilgiler için tıklayın" dediğinde açılır) -->
+    <div id="info-modal" class="hidden modal-enter fixed inset-0 z-[60] bg-emerald-950/90 items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl relative overflow-hidden">
+            <!-- Modal Header -->
+            <div class="bg-emerald-800 p-4 sm:p-6 flex justify-between items-center text-white shrink-0">
+                <h2 id="info-name" class="text-xl sm:text-2xl font-bold truncate pr-4">İsim</h2>
+                <button onclick="closeInfoModal()" class="bg-emerald-700 hover:bg-red-500 text-white rounded-full p-2 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <!-- Modal Body (Scrollable) -->
+            <div class="p-6 overflow-y-auto flex-1 bg-emerald-50">
+                <!-- Resim Albümü Yatay Kaydırma -->
+                <div id="info-album" class="flex gap-4 overflow-x-auto pb-4 snap-x mb-6"></div>
+
+                <div class="bg-white p-6 rounded-2xl border border-emerald-100 shadow-sm">
+                    <div class="flex flex-col sm:flex-row gap-2 sm:gap-6 text-emerald-700 font-bold mb-6 pb-6 border-b border-emerald-50 text-center sm:text-left">
+                        <span id="info-birth" class="bg-emerald-50 px-4 py-2 rounded-lg">Doğum: -</span>
+                        <span id="info-death" class="bg-emerald-50 px-4 py-2 rounded-lg">Vefat: -</span>
+                    </div>
+                    
+                    <h3 class="text-lg font-bold text-emerald-900 mb-3 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Hakkında
+                    </h3>
+                    <p id="info-about" class="text-slate-600 leading-relaxed whitespace-pre-wrap text-justify">Bilgi yok...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Yönetici Giriş Modalı -->
-    <div id="login-modal" class="hidden modal-enter fixed inset-0 z-50 bg-emerald-950/80 items-center justify-center p-4">
+    <div id="login-modal" class="hidden modal-enter fixed inset-0 z-[70] bg-emerald-950/90 items-center justify-center p-4">
         <div class="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden relative">
-            <button onclick="closeLogin()" class="absolute top-4 right-4 text-slate-400 hover:text-red-500"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-            <div class="bg-emerald-800 p-6 text-center border-b-4 border-emerald-500">
-                <h2 class="text-2xl font-bold text-white">Yönetici Girişi</h2>
+            <button onclick="closeLogin()" class="absolute top-4 right-4 text-emerald-200 hover:text-white z-10"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            <div class="bg-emerald-800 p-8 text-center relative">
+                <div class="w-16 h-16 bg-emerald-700 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner border border-emerald-600 text-emerald-300">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                </div>
+                <h2 class="text-2xl font-bold text-white tracking-wide">Sistem Girişi</h2>
             </div>
             <div class="p-8 space-y-6 bg-emerald-50">
                 <div>
-                    <label class="block text-sm font-bold text-emerald-900 mb-2 text-center">Şifre (2468)</label>
-                    <input type="password" id="login-pw" placeholder="••••" class="w-full px-4 py-4 rounded-xl border-2 border-emerald-200 focus:border-emerald-500 text-center text-2xl tracking-widest outline-none">
+                    <input type="password" id="login-pw" placeholder="Şifre" class="w-full px-4 py-4 rounded-xl border-2 border-emerald-200 focus:border-emerald-500 text-center text-3xl tracking-widest outline-none font-black text-emerald-900 bg-white shadow-sm">
                 </div>
                 <button onclick="checkLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 px-4 rounded-xl shadow-lg transition-all text-lg">GİRİŞ YAP</button>
             </div>
         </div>
     </div>
 
-    <!-- Onay (Confirm) Modalı -->
-    <div id="confirm-modal" class="hidden modal-enter fixed inset-0 z-[60] bg-emerald-950/80 items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-sm p-6 text-center shadow-2xl">
-            <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-            </div>
-            <h3 class="text-xl font-bold text-slate-800 mb-2">Emin misiniz?</h3>
-            <p class="text-slate-600 mb-6">Bu kişiyi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.</p>
-            <div class="flex gap-3">
-                <button onclick="closeConfirmModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-3 rounded-xl transition-colors">İptal</button>
-                <button id="confirm-yes-btn" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl transition-colors">Evet, Sil</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Bildirim (Toast) Konteyneri -->
-    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
+    <div id="toast-container" class="fixed bottom-4 right-4 z-[90] flex flex-col gap-2"></div>
 
     <script>
         // --- VERİTABANI BAĞLANTISI (FİREBASE REST API) ---
-        // Senin projene özel Firebase Linki. 'dostlar.json' son eki veritabanı yolu içindir.
         const DB_URL = "https://genel-proje-79c7f-default-rtdb.europe-west1.firebasedatabase.app/dostlar.json";
 
         // --- DURUM YÖNETİMİ ---
@@ -198,30 +199,29 @@
         let dostlar = [];
         let currentEditingId = null;
         let currentEditImages = []; 
-        let currentlyViewingId = null;
-        let personToDelete = null; // Silinecek kişinin ID'sini tutar
 
         // --- SAYFA YÜKLENDİĞİNDE ---
         window.onload = () => {
-            showPanel('empty-state');
+            showPanel('list-mode');
             fetchDataFromCloud();
         };
 
-        // --- BİLDİRİM (TOAST) SİSTEMİ (alert yerine) ---
+        // --- PANELLER ARASI GEÇİŞ ---
+        function showPanel(panelId) {
+            document.getElementById('list-mode').classList.add('hidden');
+            document.getElementById('edit-mode').classList.add('hidden');
+            document.getElementById(panelId).classList.remove('hidden');
+        }
+
+        // --- BİLDİRİM SİSTEMİ ---
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
             const bg = type === 'error' ? 'bg-red-500' : (type === 'info' ? 'bg-blue-500' : 'bg-emerald-600');
-            toast.className = `${bg} text-white px-6 py-3 rounded-xl shadow-lg font-bold transition-all duration-300 transform translate-y-10 opacity-0`;
+            toast.className = `${bg} text-white px-6 py-3 rounded-xl shadow-lg font-bold transition-all duration-300 transform translate-y-10 opacity-0 z-50`;
             toast.innerText = message;
-            
             document.getElementById('toast-container').appendChild(toast);
             
-            // Animasyon için hafif bekleme
-            setTimeout(() => {
-                toast.classList.remove('translate-y-10', 'opacity-0');
-            }, 10);
-
-            // 3 saniye sonra kaybol
+            setTimeout(() => toast.classList.remove('translate-y-10', 'opacity-0'), 10);
             setTimeout(() => {
                 toast.classList.add('translate-y-10', 'opacity-0');
                 setTimeout(() => toast.remove(), 300);
@@ -235,14 +235,11 @@
                 const response = await fetch(DB_URL);
                 if(response.ok) {
                     const data = await response.json();
-                    dostlar = data || []; // Veri yoksa boş dizi
-                    localStorage.setItem('allahDostlariBackup', JSON.stringify(dostlar)); // Yedekle
-                } else {
-                    throw new Error("Bağlantı hatası");
+                    dostlar = data || [];
+                    localStorage.setItem('allahDostlariBackup', JSON.stringify(dostlar));
                 }
             } catch (error) {
-                console.error("Veri çekilemedi:", error);
-                showToast("Buluta bağlanılamadı, cihazdaki son yedek gösteriliyor.", "info");
+                console.warn("Çevrimdışı mod: Yerel veriler kullanılıyor.");
                 dostlar = JSON.parse(localStorage.getItem('allahDostlariBackup')) || [];
             }
             document.getElementById('loading-indicator').classList.add('hidden');
@@ -252,56 +249,44 @@
         // --- BULUTA VERİ KAYDETME ---
         async function syncDataToCloud() {
             const saveBtn = document.getElementById('save-btn');
-            const originalText = saveBtn.innerHTML;
-            saveBtn.innerHTML = "⏳ BULUTA KAYDEDİLİYOR...";
-            saveBtn.disabled = true;
+            if(saveBtn) {
+                saveBtn.innerHTML = "⏳ KAYDEDİLİYOR...";
+                saveBtn.disabled = true;
+            }
 
-            localStorage.setItem('allahDostlariBackup', JSON.stringify(dostlar)); // Önce yerele yedekle
+            localStorage.setItem('allahDostlariBackup', JSON.stringify(dostlar));
 
             try {
-                const response = await fetch(DB_URL, {
-                    method: 'PUT', // Tüm listeyi günceller
+                await fetch(DB_URL, {
+                    method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(dostlar)
                 });
-                
-                if(!response.ok) throw new Error("Sunucu reddetti");
-                
-                showToast("Kayıt Başarılı! Veriler buluta eklendi.");
-                if(currentEditingId || dostlar.length > 0) {
-                    viewPerson(currentEditingId || dostlar[dostlar.length-1].id); // Görüntüleme moduna geç
-                }
+                showToast("Buluta başarıyla kaydedildi!");
             } catch (error) {
-                console.error("Kayıt hatası:", error);
-                showToast("İnternet sorunu! Veriler cihazınıza kaydedildi.", "error");
-                cancelEdit();
+                showToast("İnternet yok! Cihaza kaydedildi.", "info");
             }
             
-            saveBtn.innerHTML = originalText;
-            saveBtn.disabled = false;
+            if(saveBtn) {
+                saveBtn.innerHTML = `💾 BİLGİLERİ KAYDET`;
+                saveBtn.disabled = false;
+            }
         }
 
         // --- YÖNETİCİ GİRİŞİ ---
         function openLogin() {
-            if(isAdmin) {
-                isAdmin = false;
-                document.getElementById('admin-tools').classList.add('hidden');
-                document.getElementById('edit-btn-container').classList.add('hidden');
-                document.getElementById('admin-status-text').innerText = "Yönetici girişi için tıklayın";
-                showPanel('empty-state');
-                renderList();
-                showToast("Yönetici çıkışı yapıldı.", "info");
-                return;
-            }
-            document.getElementById('login-modal').classList.remove('hidden');
-            document.getElementById('login-modal').classList.add('flex');
+            if(isAdmin) return; // Zaten giriş yapılmışsa açma
+            const modal = document.getElementById('login-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
             document.getElementById('login-pw').value = '';
-            document.getElementById('login-pw').focus();
+            setTimeout(() => document.getElementById('login-pw').focus(), 100);
         }
 
         function closeLogin() {
-            document.getElementById('login-modal').classList.add('hidden');
-            document.getElementById('login-modal').classList.remove('flex');
+            const modal = document.getElementById('login-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
         }
 
         function checkLogin() {
@@ -309,94 +294,120 @@
                 isAdmin = true;
                 closeLogin();
                 document.getElementById('admin-tools').classList.remove('hidden');
-                document.getElementById('admin-status-text').innerText = "Yönetici (Çıkış yapmak için tıklayın)";
-                if(currentlyViewingId) document.getElementById('edit-btn-container').classList.remove('hidden');
+                document.getElementById('admin-status-text').innerText = "Yönetici Modu Aktif";
+                renderList(); // Kartlardaki düzenle/sil butonlarını göstermek için listeyi yenile
                 showToast("Yönetici girişi başarılı!");
             } else {
                 showToast("Hatalı Şifre!", "error");
             }
         }
 
-        // --- PANELLER ARASI GEÇİŞ ---
-        function showPanel(panelId) {
-            document.getElementById('empty-state').classList.add('hidden');
-            document.getElementById('view-mode').classList.add('hidden');
-            document.getElementById('edit-mode').classList.add('hidden');
-            document.getElementById(panelId).classList.remove('hidden');
+        function logout() {
+            isAdmin = false;
+            document.getElementById('admin-tools').classList.add('hidden');
+            document.getElementById('admin-status-text').innerText = "Yönetici girişi için tıklayın";
+            showPanel('list-mode');
+            renderList();
+            showToast("Çıkış yapıldı.", "info");
         }
 
-        // --- LİSTE OLUŞTURMA ---
+        // --- KARTVİZİT LİSTESİ OLUŞTURMA ---
         function renderList() {
-            const container = document.getElementById('list-container');
+            const container = document.getElementById('cards-container');
+            const emptyMsg = document.getElementById('empty-list-msg');
             container.innerHTML = '';
 
             if (dostlar.length === 0) {
-                container.innerHTML = `<p class="text-center text-emerald-300/50 mt-4 text-sm">Liste boş.</p>`;
+                emptyMsg.classList.remove('hidden');
                 return;
+            } else {
+                emptyMsg.classList.add('hidden');
             }
 
-            dostlar.forEach(kisi => {
-                const isSelected = currentlyViewingId === kisi.id;
-                const mainImage = kisi.images && kisi.images.length > 0 ? kisi.images[0] : 'https://placehold.co/100x100/10b981/ffffff?text=Resim+Yok';
+            // Sondan başa doğru diz (en son eklenen en üstte)
+            [...dostlar].reverse().forEach(kisi => {
+                const mainImage = kisi.images && kisi.images.length > 0 ? kisi.images[0] : 'https://placehold.co/400x300/10b981/ffffff?text=Resim+Yok';
+                
+                // Harita butonu HTML'i
+                let mapButtonHTML = '';
+                if(kisi.map && kisi.map.trim() !== '') {
+                    mapButtonHTML = `<a href="${kisi.map}" target="_blank" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-700 py-3 rounded-xl text-center block border border-emerald-200 font-bold transition-colors">📍 Haritada Göster</a>`;
+                }
+
+                // Yönetici Butonları HTML'i
+                let adminButtonsHTML = '';
+                if(isAdmin) {
+                    adminButtonsHTML = `
+                        <div class="absolute top-2 right-2 flex gap-2 z-10">
+                            <button onclick="editCurrent('${kisi.id}')" class="bg-amber-500 hover:bg-amber-400 text-white p-2 rounded-lg shadow-md transition-all">✏️ Düzenle</button>
+                            <button onclick="deletePerson('${kisi.id}')" class="bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg shadow-md transition-all">🗑️ Sil</button>
+                        </div>
+                    `;
+                }
 
                 const card = document.createElement('div');
-                card.className = `bg-emerald-800/80 hover:bg-emerald-700 p-3 rounded-xl cursor-pointer transition-all flex items-center gap-4 border border-emerald-700/50 ${isSelected ? 'card-active' : ''}`;
-                card.onclick = () => viewPerson(kisi.id);
-
+                card.className = "bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] overflow-hidden border border-emerald-100 flex flex-col relative transition-transform hover:scale-[1.02] duration-300";
+                
                 card.innerHTML = `
-                    <img src="${mainImage}" class="w-16 h-16 rounded-lg object-cover shadow-md shrink-0 bg-emerald-900">
-                    <div class="flex-1 overflow-hidden">
-                        <h3 class="text-white font-bold truncate">${kisi.name}</h3>
-                        <p class="text-emerald-300 text-xs truncate">${kisi.birth || '?'} - ${kisi.death || '?'}</p>
+                    ${adminButtonsHTML}
+                    <div class="h-56 w-full bg-emerald-900 overflow-hidden relative">
+                        <img src="${mainImage}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        <h3 class="absolute bottom-4 left-4 right-4 text-white font-black text-xl md:text-2xl leading-tight drop-shadow-md">${kisi.name}</h3>
                     </div>
-                    ${isAdmin ? `<button onclick="openConfirmModal('${kisi.id}', event)" class="text-red-400 hover:text-red-300 p-2 bg-emerald-900/50 rounded-lg">🗑</button>` : ''}
+                    <div class="p-5 flex-1 flex flex-col gap-3">
+                        ${mapButtonHTML}
+                        <button onclick="openInfoModal('${kisi.id}')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold transition-all shadow-md mt-auto">
+                            📖 Bilgiler İçin Tıklayın
+                        </button>
+                    </div>
                 `;
                 container.appendChild(card);
             });
         }
 
-        // --- KİŞİ GÖRÜNTÜLEME ---
-        function viewPerson(id) {
+        // --- BİLGİ PENCERESİNİ AÇMA (ZİYARETÇİLER İÇİN) ---
+        function openInfoModal(id) {
             const kisi = dostlar.find(d => d.id === id);
             if(!kisi) return;
 
-            currentlyViewingId = id;
-            renderList();
-
-            document.getElementById('view-name').innerText = kisi.name;
-            document.getElementById('view-birth').innerText = `Doğum: ${kisi.birth || '-'}`;
-            document.getElementById('view-death').innerText = `Vefat: ${kisi.death || '-'}`;
-            document.getElementById('view-about').innerText = kisi.about || 'Bilgi girilmemiş.';
+            document.getElementById('info-name').innerText = kisi.name;
+            document.getElementById('info-birth').innerText = `Doğum: ${kisi.birth || '-'}`;
+            document.getElementById('info-death').innerText = `Vefat: ${kisi.death || '-'}`;
+            document.getElementById('info-about').innerText = kisi.about || 'Bu kişi hakkında henüz bilgi girilmemiş.';
             
-            const mapBtn = document.getElementById('view-map');
-            if(kisi.map) {
-                mapBtn.href = kisi.map;
-                mapBtn.classList.remove('hidden');
-                mapBtn.classList.add('inline-flex');
-            } else {
-                mapBtn.classList.add('hidden');
-                mapBtn.classList.remove('inline-flex');
-            }
-
-            const albumContainer = document.getElementById('view-album');
+            const albumContainer = document.getElementById('info-album');
             albumContainer.innerHTML = '';
+            
             if(kisi.images && kisi.images.length > 0) {
                 kisi.images.forEach(imgData => {
                     const img = document.createElement('img');
                     img.src = imgData;
-                    img.className = "w-48 h-64 object-cover rounded-2xl shadow-lg snap-center shrink-0 border border-emerald-100";
+                    img.className = "h-48 sm:h-64 object-cover rounded-xl shadow-md snap-center shrink-0 border border-emerald-200";
                     albumContainer.appendChild(img);
                 });
             } else {
-                albumContainer.innerHTML = `<div class="w-full h-32 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500/50">Bu kişiye ait resim bulunamadı.</div>`;
+                albumContainer.innerHTML = `<div class="w-full py-8 text-center bg-emerald-100/50 rounded-xl text-emerald-600 font-medium border border-emerald-200 border-dashed">Fotoğraf eklenmemiş.</div>`;
             }
 
-            document.getElementById('edit-btn-container').className = isAdmin ? 'flex justify-end mb-4' : 'hidden';
-            showPanel('view-mode');
+            const modal = document.getElementById('info-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Sayfa kaydırmasını engelle (arkadaki sayfa oynamasın)
+            document.body.style.overflow = 'hidden';
         }
 
-        // --- YENİ KİŞİ EKLEME & DÜZENLEME ---
+        function closeInfoModal() {
+            const modal = document.getElementById('info-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = ''; // Kaydırmayı geri aç
+        }
+
+        // --- YENİ KİŞİ EKLEME & DÜZENLEME (YÖNETİCİ) ---
         function createNew() {
+            if(!isAdmin) return;
             currentEditingId = null;
             currentEditImages = [];
             
@@ -411,9 +422,9 @@
             showPanel('edit-mode');
         }
 
-        function editCurrent() {
-            if(!currentlyViewingId) return;
-            const kisi = dostlar.find(d => d.id === currentlyViewingId);
+        function editCurrent(id) {
+            if(!isAdmin) return;
+            const kisi = dostlar.find(d => d.id === id);
             if(!kisi) return;
 
             currentEditingId = kisi.id;
@@ -430,27 +441,20 @@
             showPanel('edit-mode');
         }
 
-        function cancelEdit() {
-            if(currentlyViewingId) {
-                showPanel('view-mode');
-            } else {
-                showPanel('empty-state');
-            }
-        }
-
-        // --- RESİM YÜKLEME VE SIKIŞTIRMA (ÖNEMLİ) ---
+        // --- RESİM YÜKLEME VE KÜÇÜLTME (TELEFON İÇİN OPTİMİZE) ---
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
+
+            showToast("Resim işleniyor...", "info");
 
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
-                    // Resmi küçültme (Canvas kullanarak)
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800; // Genişlik sınırı
-                    const MAX_HEIGHT = 800; // Yükseklik sınırı
+                    const MAX_WIDTH = 1000;
+                    const MAX_HEIGHT = 1000;
                     let width = img.width;
                     let height = img.height;
 
@@ -471,15 +475,15 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    // Sıkıştırılmış resim (JPEG, 0.7 kalite)
-                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6); // Boyutu ufaltmak için kalite 0.6
                     currentEditImages.push(compressedBase64);
                     renderEditAlbumPreview();
+                    showToast("Resim eklendi!");
                 }
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
-            event.target.value = '';
+            event.target.value = ''; // Aynı resmi tekrar seçebilmek için
         }
 
         function removeImage(index) {
@@ -493,7 +497,7 @@
             
             currentEditImages.forEach((imgData, index) => {
                 const wrapper = document.createElement('div');
-                wrapper.className = "relative w-24 h-24 rounded-lg overflow-hidden border-2 border-emerald-200 shadow-sm";
+                wrapper.className = "relative w-24 h-24 sm:w-32 sm:h-32 rounded-xl overflow-hidden border-2 border-emerald-300 shadow-sm";
                 
                 const img = document.createElement('img');
                 img.src = imgData;
@@ -501,7 +505,7 @@
                 
                 const delBtn = document.createElement('button');
                 delBtn.innerHTML = "✖";
-                delBtn.className = "absolute top-1 right-1 bg-red-500 text-white w-6 h-6 rounded-full text-xs flex items-center justify-center shadow hover:bg-red-600";
+                delBtn.className = "absolute top-1 right-1 bg-red-500 text-white w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center shadow-lg hover:bg-red-600 border-2 border-white";
                 delBtn.onclick = () => removeImage(index);
 
                 wrapper.appendChild(img);
@@ -514,7 +518,7 @@
         function saveData() {
             const nameInput = document.getElementById('edit-name').value.trim();
             if(!nameInput) {
-                showToast("Lütfen bir isim giriniz!", "error");
+                showToast("Lütfen isim giriniz!", "error");
                 document.getElementById('edit-name').focus();
                 return;
             }
@@ -536,40 +540,23 @@
                 dostlar.push(newData);
             }
 
-            renderList();
-            syncDataToCloud(); // Buluta gönder
-        }
-
-        // --- SİLME ONAY (CONFIRM) SİSTEMİ ---
-        function openConfirmModal(id, event) {
-            event.stopPropagation(); // Kart tıklamasını engelle
-            personToDelete = id;
-            document.getElementById('confirm-modal').classList.remove('hidden');
-            document.getElementById('confirm-modal').classList.add('flex');
-        }
-
-        function closeConfirmModal() {
-            personToDelete = null;
-            document.getElementById('confirm-modal').classList.add('hidden');
-            document.getElementById('confirm-modal').classList.remove('flex');
-        }
-
-        document.getElementById('confirm-yes-btn').addEventListener('click', () => {
-            if(personToDelete) {
-                dostlar = dostlar.filter(d => d.id !== personToDelete);
-                
-                if(currentlyViewingId === personToDelete) {
-                    currentlyViewingId = null;
-                    showPanel('empty-state');
-                }
-                
+            syncDataToCloud().then(() => {
+                showPanel('list-mode');
                 renderList();
-                syncDataToCloud(); // Buluttan da silmek için güncel listeyi yolla
-                closeConfirmModal();
-                showToast("Kişi silindi.", "info");
-            }
-        });
+                // En üste kaydır
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
 
+        // --- KİŞİ SİLME ---
+        function deletePerson(id) {
+            if(confirm("Bu kişiyi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.")) {
+                dostlar = dostlar.filter(d => d.id !== id);
+                renderList();
+                syncDataToCloud();
+                showToast("Kişi silindi.");
+            }
+        }
     </script>
 </body>
 </html>
